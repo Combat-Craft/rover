@@ -11,7 +11,7 @@ def generate_launch_description():
     urdf_model_path = os.path.join(pkg_path, 'urdf', 'model.urdf')
     rviz_config_path = os.path.join(pkg_path, 'config', 'config.rviz')
     
-    print(urdf_model_path)
+    print(f"Loading URDF from path : {urdf_model_path}")
     
     with open(urdf_model_path, 'r') as infp:
         robot_desc = infp.read()
