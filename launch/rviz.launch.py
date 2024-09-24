@@ -5,6 +5,9 @@ from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 from launch.substitutions import LaunchConfiguration
 from launch.conditions import IfCondition
+from launch.actions import IncludeLaunchDescription
+from ament_index_python.packages import get_package_share_directory
+from launch.launch_description_sources import PythonLaunchDescriptionSource
 
 def generate_launch_description():
     pkg_path = FindPackageShare(package='rover').find('rover')
@@ -18,14 +21,11 @@ def generate_launch_description():
     
     params = {'robot_description': robot_desc}
     
-    robot_state_publisher_node = Node(
-        package='robot_state_publisher',
-        executable='robot_state_publisher',
-        name='robot_state_publisher',
-        output='screen',
-        parameters=[params]
-    )
-
+    rsp = IncludeLaunchDescription(
+                PythonLaunchDescriptionSource([os.path.join(
+                    get_package_share_directory('rover'),'launch','rsp.launch.py'
+                )]), launch_arguments={'use_sim_time': 'true'}.items()
+    )  
     joint_state_publisher_node = Node(
         package='joint_state_publisher',
         executable='joint_state_publisher',
@@ -51,7 +51,7 @@ def generate_launch_description():
     return LaunchDescription([
         DeclareLaunchArgument(name='gui', default_value='True',
                               description='Flag to enable joint_state_publisher_gui'),
-        robot_state_publisher_node,
+        rsp,
         joint_state_publisher_node,
         joint_state_publisher_gui_node,
         rviz2_node
